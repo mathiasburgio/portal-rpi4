@@ -94,12 +94,10 @@ address=/#/192.168.4.1
         execSync("sudo systemctl start dnsmasq");
         execSync("sudo systemctl start hostapd");
 
-        // 7️⃣ Levantar el servidor de configuración (Express)
-        const serverPath = path.join(__dirname, "server.js");
-        console.log("🌐 Iniciando servidor de configuración...");
-        execSync(`sudo node ${serverPath} &`, { stdio: "ignore" });
+        
+        console.log("🌐 Configure WIFI ingresando a 192.168.4.1");
 
-        console.log("✅ Portal cautivo activo. Conectate al WiFi 'RPi-Setup'");
+        console.log("✅ Portal cautivo activo. Conectate al WiFi 'RPi-Setup' e ingrese a 192.168.4.1:3333");
     } catch (err) {
         console.error("❌ Error al reiniciar WiFi:", err.message);
     }
@@ -113,7 +111,7 @@ function scanWiFiNetworks() {
                 console.error('Error escaneando redes:', err);
                 return resolve([]);
             }
-            const networks = [];
+            let networks = [];
             const blocks = stdout.split('Cell ');
             for (const block of blocks.slice(1)) {
                 const ssidMatch = block.match(/ESSID:"([^"]+)"/);

@@ -1,12 +1,15 @@
 1- Instalar paquetes necesarios
 sudo apt update
 sudo apt install -y hostapd dnsmasq nodejs npm git
-sudo apt install network-manager
+sudo apt install network-manager (requerido para version de consola)
 sudo npm install -g pm2
+sudo apt install pigpiod (o probar con pigpio)
+
 
 2- Detener servicios
-sudo systemctl stop hostapd
-sudo systemctl stop dnsmasq
+ejecute sudo systemctl unmask hostapd
+//sudo systemctl stop hostapd
+//sudo systemctl stop dnsmasq
 
 3- Clonar repositorio
 
