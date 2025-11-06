@@ -1,7 +1,8 @@
 1- Instalar paquetes necesarios
 sudo apt update
-sudo apt install -y hostapd dnsmasq nodejs npm pm2 git
+sudo apt install -y hostapd dnsmasq nodejs npm git
 sudo apt install network-manager
+sudo npm install -g pm2
 
 2- Detener servicios
 sudo systemctl stop hostapd
