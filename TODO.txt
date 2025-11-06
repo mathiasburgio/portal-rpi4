@@ -1,0 +1,2 @@
+-verificar funciones echo
+-agregar redireccion al configurar la red

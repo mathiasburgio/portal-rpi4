@@ -1,78 +1,122 @@
-1- Instalar paquetes necesarios
+# Portal Raspberry Pi (README)
+
+Este README describe los pasos para instalar y configurar un portal en una Raspberry Pi de 32-bit (Bookwork). En otras arquitecturas/boards pueden aparecer problemas con `pigpiod`.
+
+> **Nota:** este procedimiento fue probado en Raspberry Pi de 32-bit. Si usas otra versión o placa, puede que tengas que ajustar paquetes (`pigpiod` / `pigpio`) o permisos.
+
+---
+
+## Requisitos
+
+* Raspberry Pi (32-bit / Bookwork recomendado)
+* Conexión a Internet
+* Acceso con permisos `sudo` en la Raspberry
+
+## 1) Instalar paquetes necesarios
+
+Ejecuta los siguientes comandos:
+
+```bash
 sudo apt update
 sudo apt install -y hostapd dnsmasq nodejs npm git
-sudo apt install network-manager (requerido para version de consola)
+# Requerido para la versión de consola
+sudo apt install -y network-manager
+# pm2 global
 sudo npm install -g pm2
-sudo apt install pigpiod (o probar con pigpio)
+# pigpiod (o probar con pigpio si hay problemas)
+sudo apt install -y pigpiod
+```
 
+> Si tu board tiene problemas con `pigpiod`, prueba con `pigpio` o consulta la documentación específica de tu placa.
 
-2- Detener servicios
-ejecute sudo systemctl unmask hostapd
-//sudo systemctl stop hostapd
-//sudo systemctl stop dnsmasq
+## 2) Desenmascarar el servicio hostapd
 
-3- Clonar repositorio
+Antes de poder iniciar `hostapd` es necesario desenmascararlo (unmask):
 
-//CREO INNECESARIO
-4- Editar el archivo ´/etc/dhcpcd.conf´ y agregar (con sudo)
+```bash
+sudo systemctl unmask hostapd
+```
 
-//CREO INNECESARIO
-interface wlan0
-    static ip_address=192.168.4.1/24
-    nohook wpa_supplicant
+## 3) Clonar el repositorio
 
-//CREO INNECESARIO
-5- Respaldar archivo y editar ´/etc/dnsmasq.conf´.
+Clona el repositorio con `git` (ajusta la URL a la del proyecto):
 
-//CREO INNECESARIO
-5.1 respaldar
-sudo mv /etc/dnsmasq.conf /etc/dnsmasq.conf.orig
+```bash
+git clone <URL-del-repositorio>
+cd <nombre-del-repositorio>
+```
 
-//CREO INNECESARIO
-5.2 editar. Agregar al final
-interface=wlan0
-dhcp-range=192.168.4.2,192.168.4.20,255.255.255.0,24h
-domain-needed
-bogus-priv
+## 4) Agregar PM2 al inicio del sistema (con permisos root)
 
-//CREO INNECESARIO
-6- Crear el archivo ´/etc/hostapd/hostapd.conf´ y agregar lo siguiente
-interface=wlan0
-driver=nl80211
-ssid=RPI-Setup
-hw_mode=g
-channel=7
-wmm_enabled=0
-auth_algs=1
-ignore_broadcast_ssid=0
+Para que PM2 arranque con el sistema como root, ejecuta:
 
-//CREO INNECESARIO
-7- Editar ´/etc/default/hostapd´ y poner
-DAEMON_CONF="/etc/hostapd/hostapd.conf"
-
-8- Dar permisos para escaneo WIFI
-sudo chmod +s /sbin/iwlist
-
-9- Agregar pm2 al iniciar el sistema y con permisos root
+```bash
 sudo pm2 startup systemd -u root --hp /root
+```
 
-//CREO INNECESARIO
-10- Habilitar servicios hosapd y dnsmasq
-sudo systemctl enable hostapd
-sudo systemctl enable dnsmasq
+Esto te devolverá un comando adicional para ejecutar (si aplica). Copia y ejecútalo si el output lo solicita.
 
-EXTRA
-Forzar escaneo manual
+## 5) Configurar y ejecutar la aplicación con PM2
+
+Inicia la aplicación (ejemplo `index.js`) y guarda la configuración de PM2:
+
+```bash
+pm2 start index.js --name portal
+pm2 save
+```
+
+---
+
+## Comandos EXTRA y utilidades
+
+* Forzar escaneo manual de redes (ver ESSID):
+
+```bash
 sudo /sbin/iwlist wlan0 scan | grep ESSID
+```
 
-Forzar reset WIFI
+* Forzar reset de la configuración Wi‑Fi (ejecuta desde el sistema, ajusta la ruta al proyecto):
+
+```bash
 sudo node -e "require('/home/raspberrypi/Desktop/portal-rpi/wifi.js').resetWiFiConfig()"
+```
 
-Ver IP actual
+* Ver la IP actual de la interfaz `wlan0`:
+
+```bash
 ip addr show wlan0
+```
 
-FINAL
-Al terminar la configuración ejecutar el reinicio de WIFI para terminar. (Mantener 5 segundos el boton de reset y soltar)
+---
 
-configurar echo (para detectar el dispositivo en la red)
-En el software que vaya a utilizar este complemento copiar y modificar listen-echo.js segun las necesidades
+## FINAL — Reinicio / Reset físico
+
+Al terminar la configuración, realiza el reinicio de Wi‑Fi físico para aplicar los cambios:
+
+* Mantén presionado **5 segundos** el botón de reset y luego suelta.
+
+Esto completará la configuración y aplicará los cambios en la interfaz inalámbrica.
+
+---
+
+## Configurar `echo` (detección del dispositivo en la red)
+
+Para que tu software detecte el dispositivo en la red, copia y adapta `listen-echo.js` dentro del proyecto según tus necesidades. Este complemento es el que permite el descubrimiento por `echo` en la red local.
+
+---
+
+## Notas y recomendaciones
+
+* Si hay problemas con `pigpiod`, intenta instalar `pigpio` o buscar logs en `journalctl -u pigpiod` y `dmesg`.
+* Asegúrate de que `hostapd` y `dnsmasq` no estén corriendo con configuraciones conflictivas antes de arrancar tu portal.
+* Si PM2 te pide ejecutar un comando adicional después de `pm2 startup`, ejecútalo con `sudo` tal como te lo indique el output.
+
+---
+
+## Créditos
+
+Creado por Mathias Burgio.
+
+---
+
+¡Listo! Si querés que adapte este README (ej.: agregar ejemplos de configuración de `hostapd.conf`, `dnsmasq.conf` o `listen-echo.js`) lo hago ahora.
