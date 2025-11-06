@@ -69,3 +69,6 @@ ip addr show wlan0
 
 FINAL
 Al terminar la configuración ejecutar el reinicio de WIFI para terminar. (Mantener 5 segundos el boton de reset y soltar)
+
+configurar echo (para detectar el dispositivo en la red)
+En el software que vaya a utilizar este complemento copiar y modificar listen-echo.js segun las necesidades

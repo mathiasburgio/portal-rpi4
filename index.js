@@ -9,6 +9,7 @@ const { Gpio } = require('pigpio');
 const app = express();
 app.use(bodyParser.urlencoded({ extended: true }));
 app.use(express.static(path.join(__dirname, 'public')));
+app.use('/resources', express.static(path.join(__dirname, 'resources')));
 
 // Página principal
 app.get("/", (req, res) => {
