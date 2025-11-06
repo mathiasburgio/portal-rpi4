@@ -117,7 +117,7 @@ function scanWiFiNetworks() {
                 const ssidMatch = block.match(/ESSID:"([^"]+)"/);
                 const signalMatch = block.match(/Signal level=(-?\d+) dBm/);
                 const signal = signalMatch ? parseInt(signalMatch[1]) : null;
-                const quality = null;
+                let quality = null;
 
                 if (signal !== null) {
                     if (signal >= -50) quality = 'Excelente';
