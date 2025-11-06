@@ -8,7 +8,7 @@ sudo systemctl stop dnsmasq
 
 3- Clonar repositorio
 
-4- Editar el archivo ´/etc/dhcpcd.conf´ y agregar
+4- Editar el archivo ´/etc/dhcpcd.conf´ y agregar (con sudo)
 
 interface wlan0
     static ip_address=192.168.4.1/24
