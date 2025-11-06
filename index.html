@@ -46,7 +46,7 @@
             async function connect(){
                 const ssid = document.getElementById('ssid').value;
                 const password = document.getElementById('password').value;
-                if(!ssid || !password) return alert("Por favor, ingrese SSID y Password.");
+                if(!ssid || ssid == "0" || !password) return alert("Por favor, ingrese SSID y Password.");
                 const resp = await $.post({
                     url: "/connect",
                     data: { ssid, password }
@@ -57,15 +57,26 @@
                 $("#refresh-networks").on("click", async ev=>{
                     $("#refresh-networks").prop("disabled", true);
                     let networks = await refreshNetworks();
-                    const ssidSelect = $("#ssid");
-                    const options = networks.map(nw=>`<option value="${nw.ssid}">${nw.ssid} (${nw.signal} dBm)</option>`).join("");
-                    ssidSelect.html(options);
+                    const options = networks.map(nw=>`<option value="${nw.ssid}">${nw.ssid} (${nw.quality})</option>`).join("");
+                    $("#ssid").html("<option value='' selected>Selecciona una red</option><option value='0'>Escribe una red</option>" + options);
                     $("#refresh-networks").prop("disabled", false);
                 });
                 $("#connect").on("click", async ev=>{
                     $("#connect").prop("disabled", true);
                     await connect();
                     $("#connect").prop("disabled", false);
+                });
+                $("#ssid").on("change", function() {
+                    let val = $(this).val();
+                    if(val === "0") {
+                        let aux = prompt("Escribe el SSID de la red WiFi:");
+                        if(aux) {
+                            $(this).append(`<option value="${aux}" selected>${aux}</option>`);
+                            $(this).val(aux);
+                        } else {
+                            $(this).val("");
+                        }    
+                    }
                 });
             };
         </script>
