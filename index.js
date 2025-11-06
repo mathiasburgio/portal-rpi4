@@ -3,11 +3,18 @@ const express = require('express');
 const bodyParser = require('body-parser');
 const path = require('path');
 const { saveWiFiConfig, resetWiFiConfig, scanWiFiNetworks } = require('./wifi');
-const Gpio = require('onoff').Gpio;
+//const Gpio = require('onoff').Gpio;
+const { Gpio } = require('pigpio');
 
 const app = express();
 app.use(bodyParser.urlencoded({ extended: true }));
 app.use(express.static(path.join(__dirname, 'public')));
+
+// Página principal
+app.get("/", (req, res) => {
+    const indexPath = path.join(__dirname, "index.html");
+    res.sendFile(indexPath);
+});
 
 // API: obtener redes WiFi
 app.get('/networks', async (req, res) => {
@@ -21,7 +28,7 @@ app.get('/networks', async (req, res) => {
 });
 
 // Guardar red WiFi
-app.post('/save', (req, res) => {
+app.post('/connect', (req, res) => {
     const { ssid, password } = req.body;
     if (!ssid || !password) return res.status(400).send('Faltan datos');
     try {
@@ -34,33 +41,29 @@ app.post('/save', (req, res) => {
 });
 
 // Botón de reseteo
-const BUTTON_PIN = 3; // BCM 3 -> pin físico 5. Cambiar a 17 si preferís (GPIO17)
-const button = new Gpio(BUTTON_PIN, 'in', 'both', { debounceTimeout: 50 });
+// Require pin 17 (GPIO17, pin físico 11) conectado a GND
+const button = new Gpio(17, {
+    mode: Gpio.INPUT,
+    pullUpDown: Gpio.PUD_UP,
+    alert: true
+});
+button.enableAlert();
 let pressStart = null;
 const HOLD_TIME = 5000;
-
-button.watch((err, value) => {
-    if (err) return console.error(err);
-    if (value === 0) {
+button.on('alert', (level) => {
+    if(level === 0) {
         pressStart = Date.now();
-    } else if (pressStart) {
+    }else if(level == 1 && pressStart){
         const held = Date.now() - pressStart;
         pressStart = null;
-        if (held >= HOLD_TIME) {
+        if(held >= HOLD_TIME){
             console.log("Botón mantenido >5s. Reseteando WiFi...");
             resetWiFiConfig();
-        } else {
-            console.log("Presionado corto.");
         }
     }
 });
 
-process.on('SIGINT', () => {
-    button.unexport();
-    process.exit();
-});
-
-const PORT = 80;
+const PORT = 3333;
 app.listen(PORT, () => {
     console.log(`Portal de configuración iniciado en http://192.168.4.1 (puerto ${PORT})`);
 });

@@ -3,46 +3,71 @@
     <head>
         <meta charset="utf-8">
         <title>Configuración WiFi</title>
-        <style>
-            body { font-family: Arial; text-align: center; margin-top: 80px; }
-            select, input { margin: 10px; padding: 8px; width: 260px; }
-            button { padding: 10px 20px; }
-            small { color:#666; }
-        </style>
+        <link rel="stylesheet" href="/resources/bootstrap.min.css">
+        <script src="/resources/jquery-3.7.1.min.js"></script>
+        <style></style>
 
     </head>
     <body>
-        <h1>Configuración de WiFi</h1>
-        <form action="/save" method="POST">
-            <select id="ssid" name="ssid" required></select><br>
-            <input type="password" name="password" placeholder="Contraseña" required><br>
-            <button type="submit">Guardar</button>
-        </form>
-        <p><small>Mantén presionado el botón físico 5 seg. para reiniciar configuración</small></p>
-
+        <h1 class="mt-5 mb-3">Raspberry PI</h1>
+        <div class="card w-50 m-auto">
+            <div class="card-body">
+                <div class="form-group">
+                    <label for="">SSID</label>
+                    <div class="input-group">
+                        <select class="form-control" id="ssid">
+                        </select>
+                        <div class="input-group-append">
+                            <button class="btn btn-primary" type="button" id="refresh-networks">Actualizar</button>
+                        </div>
+                    </div>
+                </div>
+                <div class="form-group">
+                    <label for="">Password</label>
+                    <input type="text" class="form-control" id="password">
+                </div>
+            </div>
+            <div class="text-right">
+                <button class="btn btn-primary" id="connect">Conectar</button>
+            </div>
+        </div>
         <script>
-            async function cargarRedes() {
-                const sel = document.getElementById('ssid');
-                sel.innerHTML = '<option>Cargando redes...</option>';
+            async function refreshNetworks() {
                 try {
                     const res = await fetch('/networks');
                     const nets = await res.json();
-                    sel.innerHTML = '';
-                    if (!nets || nets.length === 0) {
-                        sel.innerHTML = '<option>No se detectaron redes</option>';
-                        return;
-                    }
-                    for (const n of nets) {
-                        const opt = document.createElement('option');
-                        opt.value = n.ssid;
-                        opt.textContent = `${n.ssid} ${n.signal? '('+n.signal+' dBm)':''}`;
-                        sel.appendChild(opt);
-                    }
+                    console.log(nets);
+                    return nets || [];
                 } catch(e) {
-                    sel.innerHTML = '<option>Error al cargar</option>';
+                    console.error("Error al cargar redes:", e);
+                    return [];
                 }
             }
-            window.onload = cargarRedes;
+            async function connect(){
+                const ssid = document.getElementById('ssid').value;
+                const password = document.getElementById('password').value;
+                if(!ssid || !password) return alert("Por favor, ingrese SSID y Password.");
+                const resp = await $.post({
+                    url: "/connect",
+                    data: { ssid, password }
+                });
+                alert("Configuración enviada. La Raspberry Pi intentará conectarse a la red WiFi.");
+            }
+            window.onload = () =>{
+                $("#refresh-networks").on("click", async ev=>{
+                    $("#refresh-networks").prop("disabled", true);
+                    let networks = await refreshNetworks();
+                    const ssidSelect = $("#ssid");
+                    const options = networks.map(nw=>`<option value="${nw.ssid}">${nw.ssid} (${nw.signal} dBm)</option>`).join("");
+                    ssidSelect.html(options);
+                    $("#refresh-networks").prop("disabled", false);
+                });
+                $("#connect").on("click", async ev=>{
+                    $("#connect").prop("disabled", true);
+                    await connect();
+                    $("#connect").prop("disabled", false);
+                });
+            };
         </script>
     </body>
 </html>

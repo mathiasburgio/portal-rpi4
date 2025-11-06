@@ -3,7 +3,7 @@ const { execSync, exec } = require('child_process');
 const WIFI_FILE = '/etc/wpa_supplicant/wpa_supplicant.conf';
 
 function saveWiFiConfig(ssid, password) {
-    const wpaConfig = `
+    /* const wpaConfig = `
 network={
     ssid="${ssid}"
     psk="${password}"
@@ -14,25 +14,27 @@ network={
     // apagar AP y reconfigurar wpa_supplicant para conectar
     execSync('systemctl stop hostapd dnsmasq', { stdio: 'inherit' });
     execSync('rfkill unblock wlan', { stdio: 'inherit' });
-    execSync('wpa_cli -i wlan0 reconfigure', { stdio: 'inherit' });
+    execSync('wpa_cli -i wlan0 reconfigure', { stdio: 'inherit' }); */
+
+    console.log("1. Detengo servicios");
+    execSync("sudo systemctl stop hostapd || true");
+    execSync("sudo systemctl stop dnsmasq || true");
+
+    console.log("2. Inicio Network Manager...(espero 5 seg)");
+    execSync("sudo systemctl start NetworkManager || true");
+    execSync("sleep 5");
+
+    console.log(`3. Borro configuracion vieja para "${ssid}"...(espero 5 seg)`);
+    execSync(`sudo nmcli connection delete "${ssid}" || true`);
+
+    console.log(`4. Creo nueva conexion para "${ssid}"`);
+    execSync(`sudo nmcli dev wifi connect "${ssid}" password "${password}"`, { stdio: 'inherit' });
+
+    console.log("5. Listo! Deberia estar conectado.");
+    return true;
 }
 
 function resetWiFiConfig() {
-  /* const defaultConf = `ctrl_interface=DIR=/var/run/wpa_supplicant GROUP=netdev
-update_config=1
-country=AR
-`;
-    fs.writeFileSync(WIFI_FILE, defaultConf);
-    // parar cliente y levantar AP
-    try {
-        execSync('systemctl stop wpa_supplicant', { stdio: 'inherit' });
-    } catch(e){ 
-        // puede fallar si ya está parado 
-    }
-    execSync('systemctl enable hostapd dnsmasq', { stdio: 'inherit' });
-    execSync('systemctl start hostapd dnsmasq', { stdio: 'inherit' });
-    console.log("wpa_supplicant restaurado. AP reactivado."); */
-
     const HOSTAPD_CONF = "/etc/hostapd/hostapd.conf";
     const DNSMASQ_CONF = "/etc/dnsmasq.conf";
     const WPA_SUPPLICANT_CONF = "/etc/wpa_supplicant/wpa_supplicant.conf";
@@ -116,10 +118,21 @@ function scanWiFiNetworks() {
             for (const block of blocks.slice(1)) {
                 const ssidMatch = block.match(/ESSID:"([^"]+)"/);
                 const signalMatch = block.match(/Signal level=(-?\d+) dBm/);
+                const signal = signalMatch ? parseInt(signalMatch[1]) : null;
+                const quality = null;
+
+                if (signal !== null) {
+                    if (signal >= -50) quality = 'Excelente';
+                    else if (signal >= -60) quality = 'Buena';
+                    else if (signal >= -70) quality = 'Media';
+                    else quality = 'Baja';
+                }
+
                 if (ssidMatch) {
                     networks.push({
                         ssid: ssidMatch[1],
-                        signal: signalMatch ? parseInt(signalMatch[1]) : null
+                        signal: signal,
+                        quality: quality
                     });
                 }
             }
