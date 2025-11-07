@@ -5,6 +5,10 @@ const socket = dgram.createSocket('udp4');
 const BROADCAST_PORT = 41234;
 const BROADCAST_ADDR = '255.255.255.255';
 
+socket.bind(() => {
+    socket.setBroadcast(true);
+});
+
 function getLocalIP() {
     const interfaces = os.networkInterfaces();
     for (const iface in interfaces) {

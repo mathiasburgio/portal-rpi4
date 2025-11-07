@@ -5,6 +5,7 @@ const LISTEN_PORT = 41234;
 socket.on("message", (msg, rinfo) => {
     try {
         const data = JSON.parse(msg.toString());
+        console.log(data);
         if (data.type === "RPI_PORTAL") {
             console.log(`🔊 Mensaje recibido de ${data.ip}: ${data.time}`);
         }
