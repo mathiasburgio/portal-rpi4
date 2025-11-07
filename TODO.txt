@@ -1,2 +1,4 @@
 -verificar funciones echo
 -agregar redireccion al configurar la red
+-verificar en rpi de consola (rpi zero 2w)
+-buscar forma de verificar conexion
