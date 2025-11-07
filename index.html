@@ -36,6 +36,28 @@
                 </div>
             </div>
         </div>
+        
+        <div class="my-3"></div>
+
+        <div class="card w-50 m-auto d-none" id="update-card">
+            <div class="card-body">
+                <div class="alert alert-info">
+                    Al seleccionar un archivo .zip se actualizará el software de la Raspberry Pi.
+                </div>
+                <div class="form-group">
+                    <label for="">Archivo de actualización</label>
+                    <input type="file" class="form-control" id="update-file">
+                </div>
+                <div class="row">
+                    <div class="col">
+                        <button class="btn btn-primary btn-block" id="update-button">Actualizar software</button>
+                    </div>
+                    <div class="col">
+                        <button class="btn btn-primary btn-block" id="restart-button">Reiniciar software</button>
+                    </div>
+                </div>
+            </div>
+        </div>
         <script>
             async function refreshNetworks() {
                 try {
@@ -82,6 +104,45 @@
                             $(this).val("");
                         }    
                     }
+                });
+            
+                let counterClickH1 = 0;
+                $("h1").on("click", ev=>{
+                    counterClickH1++;
+                    if(counterClickH1 > 5) $("#update-card").removeClass("d-none");
+                });
+                $("#update-button").on("click", async ev=>{
+                    const fileInput = document.getElementById("update-file");
+                    if(fileInput.files.length === 0) return alert("Por favor, selecciona un archivo .zip para actualizar.");
+                    const file = fileInput.files[0];
+                    const formData = new FormData();
+                    formData.append("file", file);
+                    $("#update-button").prop("disabled", true).text("Actualizando...");
+                    try {
+                        const res = await $.post({
+                            url: '/update-software',
+                            data: formData,
+                            processData: false,
+                            contentType: false
+                        });
+                        alert(res?.message || "Actualización completada.");
+                    } catch(e) {
+                        console.error("Error al actualizar:", e);
+                        alert("Error al actualizar el software.");
+                    }
+                    $("#update-button").prop("disabled", false).text("Actualizar software");
+                });
+                $("#restart-button").on("click", async ev=>{
+                    if(!confirm("¿Estás seguro de reiniciar el software?")) return;
+                    $("#restart-button").prop("disabled", true).text("Reiniciando...");
+                    try {
+                        const res = await $.post('/restart-software');
+                        alert(res?.message || "Reinicio completado.");
+                    } catch(e) {
+                        console.error("Error al reiniciar:", e);
+                        alert("Error al reiniciar el software.");
+                    }
+                    $("#restart-button").prop("disabled", false).text("Reiniciar software");
                 });
             };
         </script>

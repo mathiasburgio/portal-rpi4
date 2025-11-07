@@ -2,15 +2,42 @@
 const express = require('express');
 const bodyParser = require('body-parser');
 const path = require('path');
+const fs = require('fs');
 const { saveWiFiConfig, resetWiFiConfig, scanWiFiNetworks } = require('./wifi');
 //const Gpio = require('onoff').Gpio;
 const { Gpio } = require('pigpio');
 const emitEcho = require('./emit-echo');
+const multer = require('multer');
+const AdmZip = require('adm-zip');
+const { exec } = require('child_process');
+const os = require("os");
+require('dotenv').config();
 
 const app = express();
 app.use(bodyParser.urlencoded({ extended: true }));
 app.use(express.static(path.join(__dirname, 'public')));
 app.use('/resources', express.static(path.join(__dirname, 'resources')));
+
+if(fs.existsSync( path.join(__dirname, 'uploads') ) === false){
+    fs.mkdirSync( path.join(__dirname, 'uploads') );
+}
+const upload = multer({ dest: path.join(__dirname, 'uploads/') });
+
+function isRaspberryPi() {
+    const arch = os.arch();
+    const platform = os.platform();
+    const cpus = os.cpus().map(cpu => cpu.model.toLowerCase());
+
+    return (
+        platform === "linux" &&
+        (arch === "arm" || arch === "arm64") &&
+        cpus.some(model =>
+            model.includes("raspberry") ||
+            model.includes("bcm") // Broadcom CPU típica del RPi
+        )
+    );
+}
+
 
 // Página principal
 app.get("/", (req, res) => {
@@ -42,30 +69,80 @@ app.post('/connect', (req, res) => {
     }
 });
 
-// Botón de reseteo
-// Require pin 17 (GPIO17, pin físico 11) conectado a GND
-const button = new Gpio(17, {
-    mode: Gpio.INPUT,
-    pullUpDown: Gpio.PUD_UP,
-    alert: true
-});
-button.enableAlert();
-let pressStart = null;
-const HOLD_TIME = 5000;
-button.on('alert', (level) => {
-    if(level === 0) {
-        pressStart = Date.now();
-    }else if(level == 1 && pressStart){
-        const held = Date.now() - pressStart;
-        pressStart = null;
-        if(held >= HOLD_TIME){
-            console.log("Botón mantenido >5s. Reseteando WiFi...");
-            resetWiFiConfig();
+function extractAndReplace(zipPath, destFolder) {
+    ensureDirSync(destFolder);
+    const zip = new AdmZip(zipPath);
+    zip.getEntries().forEach(entry => {
+        const entryPath = path.join(destFolder, entry.entryName);
+        if (entry.isDirectory) {
+            ensureDirSync(entryPath);
+        } else {
+            ensureDirSync(path.dirname(entryPath));
+            fs.writeFileSync(entryPath, zip.readFile(entry));
+            console.log("📦 Reemplazado:", entryPath);
         }
+    });
+}
+function ensureDirSync(dirPath) {
+    if (!fs.existsSync(dirPath)) fs.mkdirSync(dirPath, { recursive: true });
+}
+
+app.post('/update-software',  upload.single("file"), (req, res) => {
+    if (!req.file) return res.status(400).send("No se envió ningún archivo.");
+
+    try {
+        const zipPath = req.file.path;
+        console.log("📁 Recibido ZIP:", zipPath);
+
+        extractAndReplace(zipPath, process.env.SOFTWARE_PATH);
+
+        // 🧹 Borramos el ZIP temporal
+        fs.unlinkSync(zipPath);
+
+        res.send("✅ Archivos actualizados correctamente.");
+    } catch (err) {
+        console.error("❌ Error procesando ZIP:", err);
+        res.status(500).send("Error procesando el archivo ZIP.");
     }
 });
 
-const PORT = 3333;
-app.listen(PORT, () => {
-    console.log(`Portal de configuración iniciado en http://192.168.4.1 (puerto ${PORT})`);
+app.post('/restart-software', (req, res) => {
+    exec(`pm2 restart ${process.env.SOFTWARE_PM2_NAME}`, (error, stdout, stderr) => {
+        if (error) {
+            console.error(`Error al reiniciar el software: ${error}`);
+            return res.status(500).json("Error reiniciando el software");
+        }
+        console.log(`Software reiniciado: ${stdout}`);
+        res.send("Software reiniciado correctamente");
+    });
+});
+
+
+if(isRaspberryPi()){
+    // Botón de reseteo
+    // Require pin 17 (GPIO17, pin físico 11) conectado a GND
+    const button = new Gpio(17, {
+        mode: Gpio.INPUT,
+        pullUpDown: Gpio.PUD_UP,
+        alert: true
+    });
+    button.enableAlert();
+    let pressStart = null;
+    const HOLD_TIME = 5000;
+    button.on('alert', (level) => {
+        if(level === 0) {
+            pressStart = Date.now();
+        }else if(level == 1 && pressStart){
+            const held = Date.now() - pressStart;
+            pressStart = null;
+            if(held >= HOLD_TIME){
+                console.log("Botón mantenido >5s. Reseteando WiFi...");
+                resetWiFiConfig();
+            }
+        }
+    });
+}
+
+app.listen(process.env.PORTAL_PORT, () => {
+    console.log(`Portal de configuración iniciado en http://192.168.4.1 (puerto ${process.env.PORTAL_PORT})`);
 });
