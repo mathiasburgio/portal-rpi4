@@ -5,6 +5,7 @@ const path = require('path');
 const { saveWiFiConfig, resetWiFiConfig, scanWiFiNetworks } = require('./wifi');
 //const Gpio = require('onoff').Gpio;
 const { Gpio } = require('pigpio');
+const emitEcho = require('./emit-echo');
 
 const app = express();
 app.use(bodyParser.urlencoded({ extended: true }));
