@@ -81,6 +81,10 @@ Para realizar cambios o ver logs de la aplicación gestionada ejecutar:
 3. Al final del documento aparece para cargar un archivo que agregará/remplazará los archivos dentor de la aplicación gestionada. Dicho archivo debe estar en `.zip`
 
 
+## 7) Finalizar la configuración
+
+Si el programa no requiere acceso al escritorio, quitar el auto-login del raspberry pi
+
 ---
 
 ## Comandos EXTRA y utilidades
