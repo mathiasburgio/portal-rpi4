@@ -126,7 +126,7 @@ if(process.env.IS_RASPBERRY === "true"){
     });
     button.enableAlert();
     let pressStart = null;
-    const HOLD_TIME = 5000;
+    const HOLD_TIME = 3000;
     button.on('alert', (level) => {
         if(level === 0) {
             pressStart = Date.now();
@@ -134,11 +134,12 @@ if(process.env.IS_RASPBERRY === "true"){
             const held = Date.now() - pressStart;
             pressStart = null;
             if(held >= HOLD_TIME){
-                console.log("Botón mantenido >5s. Reseteando WiFi...");
+                console.log("Botón mantenido >3s. Reseteando WiFi...");
                 resetWiFiConfig();
             }
         }
     });
+    console.log("Botón de reseteo configurado en GPIO17");
 }
 
 app.listen(process.env.PORTAL_PORT, () => {
