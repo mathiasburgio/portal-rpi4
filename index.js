@@ -23,22 +23,6 @@ if(fs.existsSync( path.join(__dirname, 'uploads') ) === false){
 }
 const upload = multer({ dest: path.join(__dirname, 'uploads/') });
 
-function isRaspberryPi() {
-    const arch = os.arch();
-    const platform = os.platform();
-    const cpus = os.cpus().map(cpu => cpu.model.toLowerCase());
-
-    return (
-        platform === "linux" &&
-        (arch === "arm" || arch === "arm64") &&
-        cpus.some(model =>
-            model.includes("raspberry") ||
-            model.includes("bcm") // Broadcom CPU típica del RPi
-        )
-    );
-}
-
-
 // Página principal
 app.get("/", (req, res) => {
     const indexPath = path.join(__dirname, "index.html");
@@ -132,7 +116,7 @@ app.get("/logs", (req, res) => {
         res.status(500).send("Error obteniendo logs");      
     }
 });
-if(isRaspberryPi()){
+if(process.env.IS_RASPBERRY === "true"){
     // Botón de reseteo
     // Require pin 17 (GPIO17, pin físico 11) conectado a GND
     const button = new Gpio(17, {
