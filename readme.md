@@ -13,7 +13,11 @@ Este README describe los pasos para instalar y configurar un portal en una Raspb
 * Acceso con permisos `sudo` en la Raspberry
 
 ## Conectar switch
+
+Este switch permitirá ingresar en modo `access point` para configurar la red WIFI
+
 - Conectar un switch (o un normal abierto) en `pin 17` (GPIO17, pin físico 11) y otro en `GND`
+
 ![](https://github.com/mathiasburgio/portal-rpi4/blob/main/gpio.jpg)
 
 
