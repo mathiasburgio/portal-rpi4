@@ -14,7 +14,7 @@ Este README describe los pasos para instalar y configurar un portal en una Raspb
 
 ## Conectar switch
 - Conectar un switch (o un normal abierto) en `pin 17` (GPIO17, pin físico 11) y otro en `GND`
-![](https://github.com/mathiasburgio/portal-rpi4/blob/main/gpio.png)
+![](https://github.com/mathiasburgio/portal-rpi4/blob/main/gpio.jpg)
 
 
 ## 0) Configurar WIFI si estas en consola
