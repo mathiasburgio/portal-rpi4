@@ -116,6 +116,8 @@ app.get("/logs", (req, res) => {
         res.status(500).send("Error obteniendo logs");      
     }
 });
+
+console.log("IS_RASPBERRY:", process.env.IS_RASPBERRY);
 if(process.env.IS_RASPBERRY === "true"){
     // Botón de reseteo
     // Require pin 17 (GPIO17, pin físico 11) conectado a GND
