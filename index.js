@@ -107,7 +107,7 @@ app.post('/update-software',  upload.single("file"), (req, res) => {
 });
 
 app.post('/restart-software', (req, res) => {
-    exec(`pm2 restart ${process.env.SOFTWARE_PM2_NAME}`, (error, stdout, stderr) => {
+    exec(`sudo pm2 restart ${process.env.SOFTWARE_PM2_NAME}`, (error, stdout, stderr) => {
         if (error) {
             console.error(`Error al reiniciar el software: ${error}`);
             return res.status(500).json("Error reiniciando el software");
@@ -116,8 +116,22 @@ app.post('/restart-software', (req, res) => {
         res.send("Software reiniciado correctamente");
     });
 });
-
-
+app.get("/logs", (req, res) => {
+    try{
+        const lines = req.query.lines || 100;
+        const error = req.query.error || false;
+        exec(`sudo pm2 logs ${process.env.SOFTWARE_PM2_NAME} --lines ${lines} ${error ? '--error' : ''} --nostream`, (error, stdout, stderr) => {
+            if (error) {
+                console.error(`Error obteniendo logs: ${error}`);
+                return res.status(500).send("Error obteniendo logs");
+            }
+            res.send(stdout);
+        });
+    } catch (err) {
+        console.error(`Error en /logs: ${err}`);
+        res.status(500).send("Error obteniendo logs");      
+    }
+});
 if(isRaspberryPi()){
     // Botón de reseteo
     // Require pin 17 (GPIO17, pin físico 11) conectado a GND

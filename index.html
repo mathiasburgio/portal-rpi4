@@ -55,7 +55,12 @@
                     <div class="col">
                         <button class="btn btn-primary btn-block" id="restart-button">Reiniciar software</button>
                     </div>
+                    <div class="col">
+                        <button class="btn btn-info btn-block" id="logs-button">Ver logs</button>
+                    </div>
                 </div>
+                <hr class="my-3">
+                <pre id="logs"></pre>
             </div>
         </div>
         <script>
@@ -79,6 +84,15 @@
                     data: { ssid, password }
                 });
                 alert("Configuración enviada. La Raspberry Pi intentará conectarse a la red WiFi.");
+            }
+            async function getLogs(lines=100, error=false){
+                try {
+                    const res = await $.get('/logs?lines=' + lines + '&error=' + (error ? '1' : '0'));
+                    return res;
+                } catch(e) {
+                    console.error("Error al obtener logs:", e);
+                    return "Error al obtener logs.";
+                }
             }
             window.onload = () =>{
                 $("#refresh-networks").on("click", async ev=>{
@@ -143,6 +157,13 @@
                         alert("Error al reiniciar el software.");
                     }
                     $("#restart-button").prop("disabled", false).text("Reiniciar software");
+                });
+                $("#logs-button").on("click", async ev=>{
+                    $("#logs-button").prop("disabled", true).text("Cargando...");
+                    await getLogs().then(logs=>{
+                        $("#logs").text(logs);
+                    });
+                    $("#logs-button").prop("disabled", false).text("Ver logs");
                 });
             };
         </script>

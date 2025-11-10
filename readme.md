@@ -21,7 +21,7 @@ sudo apt update
 sudo apt install -y hostapd dnsmasq nodejs npm git
 # Requerido para la versión de consola
 sudo apt install -y network-manager
-# pm2 global
+# pm2 global y con permisos sudo
 sudo npm install -g pm2
 # pigpiod (o probar con pigpio si hay problemas)
 sudo apt install -y pigpiod
@@ -44,6 +44,12 @@ Clona el repositorio con `git` (ajusta la URL a la del proyecto):
 ```bash
 git clone <URL-del-repositorio>
 cd <nombre-del-repositorio>
+#instalar dependencias
+npm install
+#clonar variables de entorno de ejemplo
+cp .env-example .env
+#editar variables de entorno
+nano .env
 ```
 
 ## 4) Agregar PM2 al inicio del sistema (con permisos root)
@@ -51,7 +57,8 @@ cd <nombre-del-repositorio>
 Para que PM2 arranque con el sistema como root, ejecuta:
 
 ```bash
-sudo pm2 startup systemd -u root --hp /root
+#importante ejecutar con sudo
+sudo pm2 startup
 ```
 
 Esto te devolverá un comando adicional para ejecutar (si aplica). Copia y ejecútalo si el output lo solicita.
@@ -61,9 +68,18 @@ Esto te devolverá un comando adicional para ejecutar (si aplica). Copia y ejec�
 Inicia la aplicación (ejemplo `index.js`) y guarda la configuración de PM2:
 
 ```bash
-pm2 start index.js --name portal
-pm2 save
+#importante ejecutar con sudo
+sudo pm2 start index.js --name portal
+sudo pm2 save
 ```
+
+## 6) Actualizar aplicación gestionada
+
+Para realizar cambios o ver logs de la aplicación gestionada ejecutar:
+1. Ingresar al index de portal-rpi4
+2. Realizar 5 clicks en el `h1` que dice `Raspberry pi`
+3. Al final del documento aparece para cargar un archivo que agregará/remplazará los archivos dentor de la aplicación gestionada. Dicho archivo debe estar en `.zip`
+
 
 ---
 
