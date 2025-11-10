@@ -12,6 +12,15 @@ Este README describe los pasos para instalar y configurar un portal en una Raspb
 * Conexión a Internet
 * Acceso con permisos `sudo` en la Raspberry
 
+
+## 0) Configurar WIFI si estas en consola
+```bash
+#Listar redes wifi
+sudo nmcli device wifi list
+#conectarte a red
+sudo nmcli device wifi connect "NOMBRE_DEL_WIFI" password "CONTRASEÑA"
+```
+
 ## 1) Instalar paquetes necesarios
 
 Ejecuta los siguientes comandos:
