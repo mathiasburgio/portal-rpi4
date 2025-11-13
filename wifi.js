@@ -69,7 +69,7 @@ country=AR
             HOSTAPD_CONF,
             `interface=wlan0
 driver=nl80211
-ssid=RPi-Setup
+ssid=RPI-Setup
 hw_mode=g
 channel=6
 ieee80211n=1
