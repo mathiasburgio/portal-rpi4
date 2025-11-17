@@ -69,6 +69,8 @@ npm install
 cp .env-example .env
 #editar variables de entorno
 nano .env
+#para saber la ruta del software destino ingresar hasta el directorio y ejecutar
+pwd
 ```
 
 ## 4) Agregar PM2 al inicio del sistema (con permisos root)
