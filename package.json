@@ -3,7 +3,10 @@
   "version": "1.0.0",
   "main": "index.js",
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "start": "node .",
+    "reset-wifi": "sudo systemctl restart wpa_supplicant",
+    "resetWiFi": "sudo node exec-direct-wifi.js reset",
+    "saveWiFi": "sudo node exec-direct-wifi.js save"
   },
   "keywords": [],
   "author": "",

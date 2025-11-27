@@ -128,6 +128,18 @@ sudo node -e "require('/home/raspberrypi/Desktop/portal-rpi/wifi.js').resetWiFiC
 ip addr show wlan0
 ```
 
+* Resetear e ingresar en modo AP por shell:
+
+```bash
+npm run npm run resetWiFi
+```
+
+* Conectar a red por shell:
+
+```bash
+npm run saveWiFi -- "MiWiFi" "contraseña123"
+```
+
 ---
 
 ## FINAL — Reinicio / Reset físico
