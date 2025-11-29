@@ -144,6 +144,10 @@ if(process.env.IS_RASPBERRY === "true"){
     console.log("Botón de reseteo configurado en GPIO17");
 }
 
+if(fs.existsSync(path.join(__dirname, "access-point-mode"))){
+    resetWiFiConfig();
+}
+
 app.listen(process.env.PORTAL_PORT, () => {
     console.log(`Portal de configuración iniciado en http://192.168.4.1 (puerto ${process.env.PORTAL_PORT})`);
 });

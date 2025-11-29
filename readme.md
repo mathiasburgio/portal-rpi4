@@ -163,7 +163,7 @@ Para que tu software detecte el dispositivo en la red, copia y adapta `listen-ec
 * Si hay problemas con `pigpiod`, intenta instalar `pigpio` o buscar logs en `journalctl -u pigpiod` y `dmesg`.
 * Asegúrate de que `hostapd` y `dnsmasq` no estén corriendo con configuraciones conflictivas antes de arrancar tu portal.
 * Si PM2 te pide ejecutar un comando adicional después de `pm2 startup`, ejecútalo con `sudo` tal como te lo indique el output.
-
+* Dentro del directorio portal-rpi4 si se crea un archivo de nombre `access-point-mode`, cuando se inicie portal-rpi4 se ejecutará automaticamente el reinicio de WIFI. Al registrar una red, este archivo se borra automaticamente.
 ---
 
 ## Créditos

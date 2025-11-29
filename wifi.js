@@ -30,7 +30,11 @@ network={
     console.log(`4. Creo nueva conexion para "${ssid}"`);
     execSync(`sudo nmcli dev wifi connect "${ssid}" password "${password}"`, { stdio: 'inherit' });
 
-    console.log("5. Listo! Deberia estar conectado.");
+    console.log("5. Borro 'access-point-mode' para que no se inicie en modo AP.");
+    let accessPointModePath = path.join(__dirname, "access-point-mode");
+    if(fs.existsSync(accessPointModePath)) fs.unlinkSync(accessPointModePath);
+
+    console.log("6. Listo! Deberia estar conectado.");
     return true;
 }
 
@@ -88,6 +92,9 @@ dhcp-range=192.168.4.10,192.168.4.50,12h
 address=/#/192.168.4.1
 `
         );
+
+        console.log("📝 Creando archivo './access-point-mode'");
+        fs.writeFileSync( path.join(__dirname, "access-point-mode") , "true");
 
         // 6️⃣ Iniciar servicios de portal cautivo
         console.log("🚀 Iniciando modo portal cautivo...");
