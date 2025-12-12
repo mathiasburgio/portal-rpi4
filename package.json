@@ -5,8 +5,8 @@
   "scripts": {
     "start": "node .",
     "reset-wifi": "sudo systemctl restart wpa_supplicant",
-    "resetWiFi": "sudo node exec-direct-wifi.js reset",
-    "saveWiFi": "sudo node exec-direct-wifi.js save"
+    "resetWIFI": "sudo node exec-direct-wifi.js reset",
+    "saveWIFI": "sudo node exec-direct-wifi.js save"
   },
   "keywords": [],
   "author": "",
