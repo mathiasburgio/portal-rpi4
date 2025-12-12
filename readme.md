@@ -171,5 +171,3 @@ Para que tu software detecte el dispositivo en la red, copia y adapta `listen-ec
 Creado por Mathias Burgio.
 
 ---
-
-¡Listo! Si querés que adapte este README (ej.: agregar ejemplos de configuración de `hostapd.conf`, `dnsmasq.conf` o `listen-echo.js`) lo hago ahora.
