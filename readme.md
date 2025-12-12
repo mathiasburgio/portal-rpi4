@@ -131,7 +131,7 @@ ip addr show wlan0
 * Resetear e ingresar en modo AP por shell:
 
 ```bash
-npm run npm run resetWiFi
+npm run resetWIFI
 ```
 
 * Conectar a red por shell:
