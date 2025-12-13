@@ -1,4 +1,5 @@
 const fs = require('fs');
+const path = require("path");
 const { execSync, exec } = require('child_process');
 const WIFI_FILE = '/etc/wpa_supplicant/wpa_supplicant.conf';
 
